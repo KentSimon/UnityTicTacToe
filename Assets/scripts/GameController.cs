@@ -17,7 +17,7 @@ public class GameController : MonoBehaviour
         {
             this.button = button1;
             this.textField = textMeshProUGUI;
-            playerOwned = "";
+            playerOwned = " ";
         }
     }
 
@@ -41,16 +41,29 @@ public class GameController : MonoBehaviour
 
     private int currentPLayer = 1;
 
-
     void Start()
     {
         PlayBoard = new Dictionary<string, Square>();
         SetForStartGame();
     }
 
+    void Update()
+    {
+        bool AIRunning = false;
+        if (runAI && !gameOver && !AIRunning)
+        {
+            if (currentPLayer == 0)
+            {
+                AIRunning = true;
+                int move = AIGetMove();
+                SetMove(PlayBoard.ElementAt(move).Key);
+            }
+        }
+    }
+
     public void SetForStartGame()
     {
-                gameOver = false;
+        gameOver = false;
         currentPLayer = 1;
         runAI = false;
 
@@ -70,16 +83,15 @@ public class GameController : MonoBehaviour
         {
             Square square = entry.Value;
             square.textField.text = String.Empty;
-            square.playerOwned = String.Empty;
+            square.playerOwned = " ";
             square.button.interactable = true;
             PlayBoard[entry.Key] = square;
         }
-
     }
 
     public void RegisterSquareOnStartup(Button button, TextMeshProUGUI textField)
     {
-        Debug.LogFormat("Registering Square {0}",button.name);
+        Debug.LogFormat("Registering Square {0}", button.name);
         if (!PlayBoard.ContainsKey(button.name))
         {
             Square newSquare = new Square(button, textField);
@@ -89,6 +101,15 @@ public class GameController : MonoBehaviour
 
     public void StartGame(int numplayers)
     {
+        if (numplayers == 1)
+        {
+            runAI = true;
+        }
+        else
+        {
+            runAI = false;
+        }
+
         StartScreen.SetActive(false);
         ScoreScreen.SetActive(false);
         TicTacToeBoard.SetActive(true);
@@ -101,7 +122,12 @@ public class GameController : MonoBehaviour
 
     public void OnSquareSelected(Button button)
     {
-        Square square = PlayBoard[button.name];
+        SetMove (button.name);
+    }
+
+    public void SetMove (string key)
+        {
+        Square square = PlayBoard[key];
         if (currentPLayer == 1)
         {
             square.textField.text = "X";
@@ -113,11 +139,27 @@ public class GameController : MonoBehaviour
             square.playerOwned = "O";
         }
 
-        PlayBoard[button.name] = square;
+        PlayBoard[key] = square;
         currentPLayer ^= 1;
         square.button.interactable = false;
 
         CheckForWin();
+    }
+
+    private int AIGetMove()
+    {
+        char[,] board = new char[8, 8];
+        for (int y = 0; y < 3; y++)
+        {
+            for (int x = 0; x < 3; x++)
+            {
+                board[x, y] = char.Parse(PlayBoard.ElementAt(y * 3 + x).Value.playerOwned);
+            }
+        }
+
+        int bestMove = ComputeMove.FindBestMove(board, 'O');
+        Debug.Log("Best move for O: " + bestMove);
+        return bestMove;
     }
 
     private void CheckForWin()
@@ -125,7 +167,7 @@ public class GameController : MonoBehaviour
         // 8 checks for 8 win possibilities  multiple win types are possible
 
         string playerOwned = PlayBoard["MM"].playerOwned;
-        if (!string.IsNullOrEmpty(playerOwned))
+        if (!playerOwned.Equals(" "))
         {
             // ML MM MR
             if (PlayBoard["ML"].playerOwned.Equals(playerOwned) &&
@@ -162,7 +204,7 @@ public class GameController : MonoBehaviour
 
 
         playerOwned = PlayBoard["UL"].playerOwned;
-        if (!string.IsNullOrEmpty(playerOwned))
+        if (!playerOwned.Equals(" "))
         {
             //UL UM UR
             if (PlayBoard["UM"].playerOwned.Equals(playerOwned) &&
@@ -183,7 +225,7 @@ public class GameController : MonoBehaviour
 
 
         playerOwned = PlayBoard["LR"].playerOwned;
-        if (!string.IsNullOrEmpty(playerOwned))
+        if (!playerOwned.Equals(" "))
         {
             // LL LM LR
             if (PlayBoard["LL"].playerOwned.Equals(playerOwned) &&
