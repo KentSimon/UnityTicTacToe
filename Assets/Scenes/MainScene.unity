@@ -3426,18 +3426,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: def97cf4428ed48b9a11fb7a6ee93684, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  StartScreen: {fileID: 865037017}
-  ScoreScreen: {fileID: 914947741}
-  TicTacToeBoard: {fileID: 967584768}
+  startScreen: {fileID: 865037017}
+  scoreScreen: {fileID: 914947741}
+  ticTacToeBoard: {fileID: 967584768}
   WinnerText: {fileID: 1947382720}
-  WinBarMLMR: {fileID: 1408811605}
-  WinBarUMLM: {fileID: 1841139524}
-  WinBarULLR: {fileID: 1248502762}
-  WinBarLLUR: {fileID: 465505615}
-  WinBarULUR: {fileID: 610489117}
-  WinBarULLL: {fileID: 1826186550}
-  WinBarURLR: {fileID: 772792683}
-  WinBarLLLR: {fileID: 75075945}
+  winBarMlmr: {fileID: 1408811605}
+  winBarUmlm: {fileID: 1841139524}
+  winBarUllr: {fileID: 1248502762}
+  winBarLlur: {fileID: 465505615}
+  winBarUlur: {fileID: 610489117}
+  winBarUlll: {fileID: 1826186550}
+  winBarUrlr: {fileID: 772792683}
+  winBarLllr: {fileID: 75075945}
 --- !u!1 &1110455130
 GameObject:
   m_ObjectHideFlags: 0

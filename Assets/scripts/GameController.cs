@@ -6,96 +6,103 @@ using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
-    public GameObject StartScreen;
-    public GameObject ScoreScreen;
-    public GameObject TicTacToeBoard;
+    public GameObject startScreen;
+    public GameObject scoreScreen;
+    public GameObject ticTacToeBoard;
 
     public TextMeshProUGUI WinnerText;
 
-    public GameObject WinBarMLMR;
-    public GameObject WinBarUMLM;
-    public GameObject WinBarULLR;
-    public GameObject WinBarLLUR;
-    public GameObject WinBarULUR;
-    public GameObject WinBarULLL;
-    public GameObject WinBarURLR;
-    public GameObject WinBarLLLR;
+    public GameObject winBarMlmr;
+    public GameObject winBarUmlm;
+    public GameObject winBarUllr;
+    public GameObject winBarLlur;
+    public GameObject winBarUlur;
+    public GameObject winBarUlll;
+    public GameObject winBarUrlr;
+    public GameObject winBarLllr;
 
-    private int currentPLayer = 1;
-    private bool gameOver;
+    private int _currentPLayer = 1;
+    private bool _gameOver;
 
-    private Dictionary<string, Square> PlayBoard;
-    private bool runAI;
-    private TextMeshProUGUI SquareTexts;
+    private Dictionary<string, Square> _playBoard;
+    private bool _runAI;
+    private bool _aiRunning;
+    private TextMeshProUGUI _squareTexts;
 
-    private int winner;
+    private int _winner;
+
+    public GameController(GameObject winBarUmlm)
+    {
+        this.winBarUmlm = winBarUmlm;
+    }
 
     private void Start()
     {
-        PlayBoard = new Dictionary<string, Square>();
+        _playBoard = new Dictionary<string, Square>();
+        _aiRunning = false;
         SetForStartGame();
     }
 
     private void Update()
     {
-        bool aiRunning = false;
-        if (runAI && !gameOver && !aiRunning)
-            if (currentPLayer == 0)
+        if (_runAI && !_gameOver && !_aiRunning)
+        {
+            if (_currentPLayer == 0)
             {
-                aiRunning = true;
+                _aiRunning = true;
                 int move = AIGetMove();
-                SetMove(PlayBoard.ElementAt(move).Key);
+                SetMove(_playBoard.ElementAt(move).Key);
+                _aiRunning = false;
             }
+        }
     }
 
     public void SetForStartGame()
     {
-        gameOver = false;
-        currentPLayer = 1;
-        runAI = false;
-        winner = 0;
+        _gameOver = false;
+        _currentPLayer = 1;
+        _runAI = false;
+        _aiRunning = false;
+        _winner = 0;
 
-        TicTacToeBoard.SetActive(false);
-        ScoreScreen.SetActive(false);
-        StartScreen.SetActive(true);
-        WinBarMLMR.SetActive(false);
-        WinBarUMLM.SetActive(false);
-        WinBarULLR.SetActive(false);
-        WinBarLLUR.SetActive(false);
-        WinBarULUR.SetActive(false);
-        WinBarULLL.SetActive(false);
-        WinBarURLR.SetActive(false);
-        WinBarLLLR.SetActive(false);
+        ticTacToeBoard.SetActive(false);
+        scoreScreen.SetActive(false);
+        startScreen.SetActive(true);
+        winBarMlmr.SetActive(false);
+        winBarUmlm.SetActive(false);
+        winBarUllr.SetActive(false);
+        winBarLlur.SetActive(false);
+        winBarUlur.SetActive(false);
+        winBarUlll.SetActive(false);
+        winBarUrlr.SetActive(false);
+        winBarLllr.SetActive(false);
 
-        foreach (var entry in PlayBoard.ToList())
+        foreach (var entry in _playBoard.ToList())
         {
             Square square = entry.Value;
-            square.textField.text = string.Empty;
-            square.playerOwned = " ";
-            square.button.interactable = true;
-            PlayBoard[entry.Key] = square;
+            square.TextField.text = string.Empty;
+            square.PlayerOwned = " ";
+            square.SquareButton.interactable = true;
+            _playBoard[entry.Key] = square;
         }
     }
 
     public void RegisterSquareOnStartup(Button button, TextMeshProUGUI textField)
     {
-        if (!PlayBoard.ContainsKey(button.name))
+        if (!_playBoard.ContainsKey(button.name))
         {
             Square newSquare = new(button, textField);
-            PlayBoard.Add(button.name, newSquare);
+            _playBoard.Add(button.name, newSquare);
         }
     }
 
-    public void StartGame(int numplayers)
+    private void StartGame(int numplayers)
     {
-        if (numplayers == 1)
-            runAI = true;
-        else
-            runAI = false;
+        _runAI = numplayers == 1;
 
-        StartScreen.SetActive(false);
-        ScoreScreen.SetActive(false);
-        TicTacToeBoard.SetActive(true);
+        startScreen.SetActive(false);
+        scoreScreen.SetActive(false);
+        ticTacToeBoard.SetActive(true);
     }
 
     public void OnNumPLayersSelected(int numPlayers)
@@ -108,23 +115,23 @@ public class GameController : MonoBehaviour
         SetMove(button.name);
     }
 
-    public void SetMove(string key)
+    private void SetMove(string key)
     {
-        Square square = PlayBoard[key];
-        if (currentPLayer == 1)
+        Square square = _playBoard[key];
+        if (_currentPLayer == 1)
         {
-            square.textField.text = "X";
-            square.playerOwned = "X";
+            square.TextField.text = "X";
+            square.PlayerOwned = "X";
         }
         else
         {
-            square.textField.text = "O";
-            square.playerOwned = "O";
+            square.TextField.text = "O";
+            square.PlayerOwned = "O";
         }
 
-        PlayBoard[key] = square;
-        currentPLayer ^= 1;
-        square.button.interactable = false;
+        _playBoard[key] = square;
+        _currentPLayer ^= 1;
+        square.SquareButton.interactable = false;
 
         CheckForWin();
     }
@@ -133,8 +140,12 @@ public class GameController : MonoBehaviour
     {
         char[,] board = new char[8, 8];
         for (int y = 0; y < 3; y++)
-        for (int x = 0; x < 3; x++)
-            board[x, y] = char.Parse(PlayBoard.ElementAt(y * 3 + x).Value.playerOwned);
+        {
+            for (int x = 0; x < 3; x++)
+            {
+                board[x, y] = char.Parse(_playBoard.ElementAt(y * 3 + x).Value.PlayerOwned);
+            }
+        }
 
         int bestMove = ComputeMove.FindBestMove(board, 'O');
         return bestMove;
@@ -144,90 +155,88 @@ public class GameController : MonoBehaviour
     {
         // 8 checks for 8 win possibilities  multiple win types are possible
 
-        string playerOwned = PlayBoard["MM"].playerOwned;
+        string playerOwned = _playBoard["MM"].PlayerOwned;
         if (!playerOwned.Equals(" "))
         {
             // ML MM MR
-            if (PlayBoard["ML"].playerOwned.Equals(playerOwned) &&
-                PlayBoard["MR"].playerOwned.Equals(playerOwned))
+            if (_playBoard["ML"].PlayerOwned.Equals(playerOwned) &&
+                _playBoard["MR"].PlayerOwned.Equals(playerOwned))
             {
-                gameOver = true;
-                WinBarMLMR.SetActive(true);
+                _gameOver = true;
+                winBarMlmr.SetActive(true);
             }
 
             // UM MM LM
-            if (PlayBoard["UM"].playerOwned.Equals(playerOwned) &&
-                PlayBoard["LM"].playerOwned.Equals(playerOwned))
+            if (_playBoard["UM"].PlayerOwned.Equals(playerOwned) &&
+                _playBoard["LM"].PlayerOwned.Equals(playerOwned))
             {
-                gameOver = true;
-                WinBarUMLM.SetActive(true);
+                _gameOver = true;
+                winBarUmlm.SetActive(true);
             }
 
             // UL MM LR
-            if (PlayBoard["UL"].playerOwned.Equals(playerOwned) &&
-                PlayBoard["LR"].playerOwned.Equals(playerOwned))
+            if (_playBoard["UL"].PlayerOwned.Equals(playerOwned) &&
+                _playBoard["LR"].PlayerOwned.Equals(playerOwned))
             {
-                gameOver = true;
-                WinBarULLR.SetActive(true);
+                _gameOver = true;
+                winBarUllr.SetActive(true);
             }
 
             // LL MM UR
-            if (PlayBoard["LL"].playerOwned.Equals(playerOwned) &&
-                PlayBoard["UR"].playerOwned.Equals(playerOwned))
+            if (_playBoard["LL"].PlayerOwned.Equals(playerOwned) &&
+                _playBoard["UR"].PlayerOwned.Equals(playerOwned))
             {
-                gameOver = true;
-                WinBarLLUR.SetActive(true);
+                _gameOver = true;
+                winBarLlur.SetActive(true);
             }
         }
 
-
-        playerOwned = PlayBoard["UL"].playerOwned;
+        playerOwned = _playBoard["UL"].PlayerOwned;
         if (!playerOwned.Equals(" "))
         {
             //UL UM UR
-            if (PlayBoard["UM"].playerOwned.Equals(playerOwned) &&
-                PlayBoard["UR"].playerOwned.Equals(playerOwned))
+            if (_playBoard["UM"].PlayerOwned.Equals(playerOwned) &&
+                _playBoard["UR"].PlayerOwned.Equals(playerOwned))
             {
-                gameOver = true;
-                WinBarULUR.SetActive(true);
+                _gameOver = true;
+                winBarUlur.SetActive(true);
             }
 
             //UL ML LL
-            if (PlayBoard["ML"].playerOwned.Equals(playerOwned) &&
-                PlayBoard["LL"].playerOwned.Equals(playerOwned))
+            if (_playBoard["ML"].PlayerOwned.Equals(playerOwned) &&
+                _playBoard["LL"].PlayerOwned.Equals(playerOwned))
             {
-                gameOver = true;
-                WinBarULLL.SetActive(true);
+                _gameOver = true;
+                winBarUlll.SetActive(true);
             }
         }
 
-
-        playerOwned = PlayBoard["LR"].playerOwned;
+        playerOwned = _playBoard["LR"].PlayerOwned;
         if (!playerOwned.Equals(" "))
         {
             // LL LM LR
-            if (PlayBoard["LL"].playerOwned.Equals(playerOwned) &&
-                PlayBoard["LM"].playerOwned.Equals(playerOwned))
+            if (_playBoard["LL"].PlayerOwned.Equals(playerOwned) &&
+                _playBoard["LM"].PlayerOwned.Equals(playerOwned))
             {
-                gameOver = true;
-                WinBarLLLR.SetActive(true);
+                _gameOver = true;
+                winBarLllr.SetActive(true);
             }
 
             // UR MR LR
-            if (PlayBoard["UR"].playerOwned.Equals(playerOwned) &&
-                PlayBoard["MR"].playerOwned.Equals(playerOwned))
+            if (_playBoard["UR"].PlayerOwned.Equals(playerOwned) &&
+                _playBoard["MR"].PlayerOwned.Equals(playerOwned))
             {
-                gameOver = true;
-                WinBarURLR.SetActive(true);
+                _gameOver = true;
+                winBarUrlr.SetActive(true);
             }
         }
 
-        if (!gameOver)
+        if (!_gameOver)
         {
             bool filled = true;
-            foreach (var entry in PlayBoard)
+            foreach (var entry in _playBoard)
             {
-                if (entry.Value.playerOwned == " ")
+                if (entry.Value.PlayerOwned == " ")
                 {
                     filled = false;
                     break;
@@ -236,42 +245,40 @@ public class GameController : MonoBehaviour
 
             if (filled)
             {
-                gameOver = true;
-                winner = 0;
+                _gameOver = true;
+                _winner = 0;
             }
         }
         else
         {
-            winner = currentPLayer == 1 ? 2 : 1;
+            _winner = _currentPLayer == 1 ? 2 : 1;
         }
 
-
-        if (gameOver)
+        if (_gameOver)
         {
-            ScoreScreen.SetActive(true);
-            if (winner > 0)
+            scoreScreen.SetActive(true);
+            if (_winner > 0)
             {
-                WinnerText.text = "Player " + (winner == 1 ? "One" : "Two");
+                WinnerText.text = "Player " + (_winner == 1 ? "One" : "Two");
             }
             else
             {
                 WinnerText.text = "Draw Game";
             }
-
         }
     }
 
     private struct Square
     {
-        public readonly Button button;
-        public readonly TextMeshProUGUI textField;
-        public string playerOwned;
+        public readonly Button SquareButton;
+        public readonly TextMeshProUGUI TextField;
+        public string PlayerOwned;
 
-        public Square(Button button1, TextMeshProUGUI textMeshProUGUI)
+        public Square(Button button, TextMeshProUGUI textMeshProUGUI)
         {
-            button = button1;
-            textField = textMeshProUGUI;
-            playerOwned = " ";
+            SquareButton = button;
+            TextField = textMeshProUGUI;
+            PlayerOwned = " ";
         }
     }
 }

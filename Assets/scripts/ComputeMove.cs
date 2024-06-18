@@ -1,4 +1,4 @@
-public class ComputeMove
+public static class ComputeMove
 {
     public static int FindBestMove(char[,] board, char player)
     {
@@ -10,7 +10,7 @@ public class ComputeMove
         for (int j = 0; j < 3; j++)
             if (board[i, j] == ' ')
             {
-                board[i, j] = 'O';
+                board[i, j] = player;
                 int score = Minimax(board, 'O');
                 board[i, j] = ' ';
 
@@ -32,12 +32,9 @@ public class ComputeMove
 
         int bestScore = forWho == 'O' ? int.MinValue : int.MaxValue;
 
-        int CalcBest(int x, int y)
-        {
-            return (forWho == 'O' ? x > y : y > x) ? x : y;
-        }
 
         for (int i = 0; i < 3; i++)
+
         for (int j = 0; j < 3; j++)
             if (board[i, j] == ' ')
             {
@@ -49,6 +46,11 @@ public class ComputeMove
             }
 
         return bestScore;
+
+        int CalcBest(int x, int y)
+        {
+            return (forWho == 'O' ? x > y : y > x) ? x : y;
+        }
     }
 
     private static int CheckWhoWins(char[,] board, char forWho)
@@ -64,9 +66,15 @@ public class ComputeMove
         {
             int score = 1;
             for (int i = 0; i < 3; i++)
-            for (int j = 0; j < 3; j++)
-                if (board[i, j] == ' ')
-                    score++;
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    if (board[i, j] == ' ')
+                    {
+                        score++;
+                    }
+                }
+            }
 
             return score;
         }
