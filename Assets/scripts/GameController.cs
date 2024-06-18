@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -7,28 +6,9 @@ using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
-    struct Square
-    {
-        public Button button;
-        public TextMeshProUGUI textField;
-        public string playerOwned;
-
-        public Square(Button button1, TextMeshProUGUI textMeshProUGUI)
-        {
-            this.button = button1;
-            this.textField = textMeshProUGUI;
-            playerOwned = " ";
-        }
-    }
-
     public GameObject StartScreen;
     public GameObject ScoreScreen;
     public GameObject TicTacToeBoard;
-
-    private Dictionary<string, Square> PlayBoard;
-    private TextMeshProUGUI SquareTexts;
-    private bool gameOver = false;
-    private bool runAI = false;
 
     public GameObject WinBarMLMR;
     public GameObject WinBarUMLM;
@@ -40,25 +20,28 @@ public class GameController : MonoBehaviour
     public GameObject WinBarLLLR;
 
     private int currentPLayer = 1;
+    private bool gameOver;
 
-    void Start()
+    private Dictionary<string, Square> PlayBoard;
+    private bool runAI;
+    private TextMeshProUGUI SquareTexts;
+
+    private void Start()
     {
         PlayBoard = new Dictionary<string, Square>();
         SetForStartGame();
     }
 
-    void Update()
+    private void Update()
     {
-        bool AIRunning = false;
-        if (runAI && !gameOver && !AIRunning)
-        {
+        bool aiRunning = false;
+        if (runAI && !gameOver && !aiRunning)
             if (currentPLayer == 0)
             {
-                AIRunning = true;
+                aiRunning = true;
                 int move = AIGetMove();
                 SetMove(PlayBoard.ElementAt(move).Key);
             }
-        }
     }
 
     public void SetForStartGame()
@@ -82,7 +65,7 @@ public class GameController : MonoBehaviour
         foreach (var entry in PlayBoard.ToList())
         {
             Square square = entry.Value;
-            square.textField.text = String.Empty;
+            square.textField.text = string.Empty;
             square.playerOwned = " ";
             square.button.interactable = true;
             PlayBoard[entry.Key] = square;
@@ -94,7 +77,7 @@ public class GameController : MonoBehaviour
         Debug.LogFormat("Registering Square {0}", button.name);
         if (!PlayBoard.ContainsKey(button.name))
         {
-            Square newSquare = new Square(button, textField);
+            Square newSquare = new(button, textField);
             PlayBoard.Add(button.name, newSquare);
         }
     }
@@ -102,13 +85,9 @@ public class GameController : MonoBehaviour
     public void StartGame(int numplayers)
     {
         if (numplayers == 1)
-        {
             runAI = true;
-        }
         else
-        {
             runAI = false;
-        }
 
         StartScreen.SetActive(false);
         ScoreScreen.SetActive(false);
@@ -122,11 +101,11 @@ public class GameController : MonoBehaviour
 
     public void OnSquareSelected(Button button)
     {
-        SetMove (button.name);
+        SetMove(button.name);
     }
 
-    public void SetMove (string key)
-        {
+    public void SetMove(string key)
+    {
         Square square = PlayBoard[key];
         if (currentPLayer == 1)
         {
@@ -150,12 +129,8 @@ public class GameController : MonoBehaviour
     {
         char[,] board = new char[8, 8];
         for (int y = 0; y < 3; y++)
-        {
-            for (int x = 0; x < 3; x++)
-            {
-                board[x, y] = char.Parse(PlayBoard.ElementAt(y * 3 + x).Value.playerOwned);
-            }
-        }
+        for (int x = 0; x < 3; x++)
+            board[x, y] = char.Parse(PlayBoard.ElementAt(y * 3 + x).Value.playerOwned);
 
         int bestMove = ComputeMove.FindBestMove(board, 'O');
         Debug.Log("Best move for O: " + bestMove);
@@ -244,9 +219,20 @@ public class GameController : MonoBehaviour
             }
         }
 
-        if (gameOver)
+        if (gameOver) ScoreScreen.SetActive(true);
+    }
+
+    private struct Square
+    {
+        public readonly Button button;
+        public readonly TextMeshProUGUI textField;
+        public string playerOwned;
+
+        public Square(Button button1, TextMeshProUGUI textMeshProUGUI)
         {
-            ScoreScreen.SetActive(true);
+            button = button1;
+            textField = textMeshProUGUI;
+            playerOwned = " ";
         }
     }
 }
