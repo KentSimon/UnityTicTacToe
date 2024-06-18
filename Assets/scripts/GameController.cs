@@ -10,6 +10,8 @@ public class GameController : MonoBehaviour
     public GameObject ScoreScreen;
     public GameObject TicTacToeBoard;
 
+    public TextMeshProUGUI WinnerText;
+
     public GameObject WinBarMLMR;
     public GameObject WinBarUMLM;
     public GameObject WinBarULLR;
@@ -25,6 +27,8 @@ public class GameController : MonoBehaviour
     private Dictionary<string, Square> PlayBoard;
     private bool runAI;
     private TextMeshProUGUI SquareTexts;
+
+    private int winner;
 
     private void Start()
     {
@@ -49,6 +53,7 @@ public class GameController : MonoBehaviour
         gameOver = false;
         currentPLayer = 1;
         runAI = false;
+        winner = 0;
 
         TicTacToeBoard.SetActive(false);
         ScoreScreen.SetActive(false);
@@ -74,7 +79,6 @@ public class GameController : MonoBehaviour
 
     public void RegisterSquareOnStartup(Button button, TextMeshProUGUI textField)
     {
-        Debug.LogFormat("Registering Square {0}", button.name);
         if (!PlayBoard.ContainsKey(button.name))
         {
             Square newSquare = new(button, textField);
@@ -133,7 +137,6 @@ public class GameController : MonoBehaviour
             board[x, y] = char.Parse(PlayBoard.ElementAt(y * 3 + x).Value.playerOwned);
 
         int bestMove = ComputeMove.FindBestMove(board, 'O');
-        Debug.Log("Best move for O: " + bestMove);
         return bestMove;
     }
 
@@ -219,7 +222,43 @@ public class GameController : MonoBehaviour
             }
         }
 
-        if (gameOver) ScoreScreen.SetActive(true);
+        if (!gameOver)
+        {
+            bool filled = true;
+            foreach (var entry in PlayBoard)
+            {
+                if (entry.Value.playerOwned == " ")
+                {
+                    filled = false;
+                    break;
+                }
+            }
+
+            if (filled)
+            {
+                gameOver = true;
+                winner = 0;
+            }
+        }
+        else
+        {
+            winner = currentPLayer == 1 ? 2 : 1;
+        }
+
+
+        if (gameOver)
+        {
+            ScoreScreen.SetActive(true);
+            if (winner > 0)
+            {
+                WinnerText.text = "Player " + (winner == 1 ? "One" : "Two");
+            }
+            else
+            {
+                WinnerText.text = "Draw Game";
+            }
+
+        }
     }
 
     private struct Square
